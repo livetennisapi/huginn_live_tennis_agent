@@ -1,0 +1,7 @@
+/.bundle/
+/vendor/bundle/
+/spec/huginn/
+/pkg/
+/tmp/
+*.gem
+.env
