@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rspec/core/rake_task'
+require 'bundler/gem_tasks' # provides build/install/release tasks from the gemspec (used by rubygems/release-gem OIDC publishing)
 
 RSpec::Core::RakeTask.new(:spec)
 
