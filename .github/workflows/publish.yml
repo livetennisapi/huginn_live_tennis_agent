@@ -1,0 +1,60 @@
+name: publish
+
+# Publishes huginn_live_tennis_agent to RubyGems.org when a GitHub Release is
+# published.
+#
+# Uses RubyGems.org Trusted Publishing (OIDC) — there is NO RubyGems API key
+# stored in this repository or its secrets. RubyGems verifies this workflow's
+# identity directly via the official rubygems/release-gem action. This matches
+# how livetennisapi-python (PyPI) and livetennisapi-js (npm) already publish.
+#
+# One-time setup on rubygems.org — because the gem does not exist yet, add a
+# PENDING trusted publisher at https://rubygems.org/profile/oidc/pending_gems :
+#     RubyGems name:   huginn_live_tennis_agent
+#     Repository:      livetennisapi/huginn_live_tennis_agent
+#     Workflow file:   publish.yml
+#     Environment:     rubygems   (leave blank if you don't gate on one)
+#   The pending publisher becomes a normal trusted publisher on first push.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: publish to RubyGems
+    runs-on: ubuntu-latest
+    environment:
+      name: rubygems
+      url: https://rubygems.org/gems/huginn_live_tennis_agent
+    permissions:
+      contents: read
+      id-token: write   # required for trusted publishing (OIDC)
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Run specs
+        run: bundle exec rspec
+
+      - name: Assert the tag matches the gem version
+        if: github.event_name == 'release'
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          GEM="$(ruby -e 'puts Gem::Specification.load(Dir["*.gemspec"].first).version')"
+          if [ "$TAG" != "$GEM" ]; then
+            echo "::error::release tag ($TAG) does not match gemspec version ($GEM)"
+            exit 1
+          fi
+          echo "tag and version agree: $GEM"
+
+      - name: Build and publish via OIDC trusted publishing
+        uses: rubygems/release-gem@v1
