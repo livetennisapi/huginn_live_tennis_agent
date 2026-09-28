@@ -6,7 +6,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 Gem::Specification.new do |spec|
   spec.name          = 'huginn_live_tennis_agent'
   spec.version       = '0.1.0'
-  spec.authors       = ['Live Tennis API']
+  spec.authors       = ['Synapse Research Ltd']
   spec.email         = ['hello@livetennisapi.com']
 
   spec.summary       = 'Huginn agent for the Live Tennis API: emits events on match start, score change, match finish, and fixture changes.'
